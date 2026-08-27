@@ -8,7 +8,9 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
-import { MaterialCommunityIcons, Feather, Ionicons } from '@expo/vector-icons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Feather from '@expo/vector-icons/Feather';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useApp } from '../context/AppContext';
 import { COLORS } from '../theme/colors';
 import { Product } from '../types';

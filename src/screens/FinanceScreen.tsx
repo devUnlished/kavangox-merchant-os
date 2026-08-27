@@ -8,11 +8,9 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
-import {
-  MaterialCommunityIcons,
-  Ionicons,
-  Feather,
-} from '@expo/vector-icons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import Feather from '@expo/vector-icons/Feather';
 import { useApp } from '../context/AppContext';
 import { COLORS } from '../theme/colors';
 import { Customer } from '../types';

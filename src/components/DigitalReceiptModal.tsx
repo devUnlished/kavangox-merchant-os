@@ -9,7 +9,10 @@ import {
   Share,
   Platform,
 } from 'react-native';
-import { Feather, MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../theme/colors';
 import { SalesReceipt } from '../types';
 import { useApp } from '../context/AppContext';

@@ -9,7 +9,9 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { Feather, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../theme/colors';
 
 interface BulkCsvModalProps {
