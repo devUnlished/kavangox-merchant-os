@@ -26,6 +26,7 @@
   },
   "scripts": {
     "start": "expo start",
+    "start:lan": "set REACT_NATIVE_PACKAGER_HOSTNAME=192.168.1.191 && expo start -c",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
