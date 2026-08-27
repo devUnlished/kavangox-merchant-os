@@ -286,15 +286,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bgCanvas,
   },
   content: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     paddingBottom: 40,
     alignItems: 'center',
   },
   pageInner: {
     width: '100%',
     maxWidth: 1040,
-    gap: 12,
+    gap: 10,
   },
   headerCard: {
     backgroundColor: COLORS.surfaceDark,
@@ -327,10 +327,10 @@ const styles = StyleSheet.create({
   },
   kpiCard: {
     flex: 1,
-    minWidth: 200,
+    minWidth: 145,
     backgroundColor: COLORS.surfaceDark,
     borderRadius: 10,
-    padding: 12,
+    padding: 10,
     borderWidth: 1,
     borderColor: COLORS.borderDark,
   },
@@ -351,16 +351,16 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.gold,
   },
   kpiLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: COLORS.textMuted,
     fontWeight: '700',
     textTransform: 'uppercase',
   },
   kpiAmount: {
-    fontSize: 17,
-    fontWeight: '800',
+    fontSize: 15,
+    fontWeight: '900',
     color: COLORS.textLight,
-    marginTop: 4,
+    marginTop: 3,
   },
   kpiSub: {
     fontSize: 10,

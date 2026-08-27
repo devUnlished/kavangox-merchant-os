@@ -244,15 +244,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bgCanvas,
   },
   content: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     paddingBottom: 40,
     alignItems: 'center',
   },
   pageInner: {
     width: '100%',
     maxWidth: 1040,
-    gap: 12,
+    gap: 10,
   },
   headerCard: {
     backgroundColor: COLORS.surfaceDark,

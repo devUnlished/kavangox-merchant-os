@@ -39,6 +39,7 @@ export const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ chil
   const { width } = useWindowDimensions();
   const isDesktop = width >= 768;
   const { activeScreen, setActiveScreen, canAccess, userRole, notifications } = useApp();
+  const [moreModalVisible, setMoreModalVisible] = React.useState(false);
 
   const unreadChatCount = notifications.filter((n) => !n.isRead && n.targetScreen === 'Communications').length;
 
@@ -47,6 +48,7 @@ export const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ chil
       alert(`Role Restricted: "${userRole}" is not authorized for ${key}. Switch your role in the top header to unlock.`);
       return;
     }
+    setMoreModalVisible(false);
     setActiveScreen(key);
   };
 
@@ -136,7 +138,11 @@ export const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ chil
     );
   }
 
-  // Mobile Layout (Top Horizontal Tabs + Screen Content + Docked Bottom Bar)
+  // Primary 4 Dock Items on Mobile + More button
+  const PRIMARY_DOCK_KEYS = ['Dashboard', 'POS', 'Inventory', 'Finance'];
+  const isMoreActive = !PRIMARY_DOCK_KEYS.includes(activeScreen);
+
+  // Mobile Layout
   return (
     <View style={styles.mobileContainer}>
       {/* Top Horizontal Quick Nav */}
@@ -182,7 +188,7 @@ export const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ chil
 
       {/* Fixed Bottom Dock Navigation */}
       <View style={styles.mobileBottomDock}>
-        {NAV_ITEMS.slice(0, 5).map((item) => {
+        {NAV_ITEMS.filter((n) => PRIMARY_DOCK_KEYS.includes(n.key)).map((item) => {
           const isActive = activeScreen === item.key;
           const isAllowed = canAccess(item.key);
           return (
@@ -205,7 +211,79 @@ export const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ chil
             </TouchableOpacity>
           );
         })}
+
+        {/* More Modules Drawer Trigger */}
+        <TouchableOpacity
+          style={[styles.bottomDockItem, isMoreActive && styles.bottomDockItemActive]}
+          onPress={() => setMoreModalVisible(true)}
+          activeOpacity={0.7}
+        >
+          <MaterialCommunityIcons
+            name="dots-horizontal-circle-outline"
+            size={18}
+            color={isMoreActive ? COLORS.primaryLight : COLORS.textMuted}
+          />
+          <Text
+            style={[
+              styles.bottomDockLabel,
+              isMoreActive && styles.bottomDockLabelActive,
+            ]}
+            numberOfLines={1}
+          >
+            {isMoreActive ? activeScreen.slice(0, 5) : 'More'}
+          </Text>
+        </TouchableOpacity>
       </View>
+
+      {/* More Modules Modal Drawer */}
+      {moreModalVisible && (
+        <View style={styles.moreDrawerOverlay}>
+          <TouchableOpacity
+            style={styles.moreDrawerBackdrop}
+            onPress={() => setMoreModalVisible(false)}
+            activeOpacity={1}
+          />
+          <View style={styles.moreDrawerCard}>
+            <View style={styles.moreDrawerHeader}>
+              <Text style={styles.moreDrawerTitle}>ALL OPERATING MODULES</Text>
+              <TouchableOpacity onPress={() => setMoreModalVisible(false)}>
+                <Feather name="x" size={18} color={COLORS.textMuted} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.moreGrid}>
+              {NAV_ITEMS.map((item) => {
+                const isActive = activeScreen === item.key;
+                const isAllowed = canAccess(item.key);
+                return (
+                  <TouchableOpacity
+                    key={item.key}
+                    style={[
+                      styles.moreGridItem,
+                      isActive && styles.moreGridItemActive,
+                      !isAllowed && { opacity: 0.4 },
+                    ]}
+                    onPress={() => handleNavPress(item.key)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.moreIconBox}>
+                      {renderIcon(item, isActive, isAllowed)}
+                    </View>
+                    <Text
+                      style={[
+                        styles.moreGridLabel,
+                        isActive && styles.moreGridLabelActive,
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -390,6 +468,71 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   bottomDockLabelActive: {
+    color: COLORS.primaryLight,
+    fontWeight: '700',
+  },
+  moreDrawerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-end',
+    zIndex: 999,
+  },
+  moreDrawerBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+  },
+  moreDrawerCard: {
+    backgroundColor: COLORS.surfaceDark,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.borderDark,
+    paddingBottom: 28,
+  },
+  moreDrawerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  moreDrawerTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: COLORS.textMuted,
+    letterSpacing: 1,
+  },
+  moreGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  moreGridItem: {
+    width: '31%',
+    backgroundColor: COLORS.surfaceDarkElevated,
+    borderRadius: 8,
+    padding: 8,
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: COLORS.borderDark,
+  },
+  moreGridItemActive: {
+    borderColor: COLORS.primaryLight,
+    backgroundColor: COLORS.primaryMuted,
+  },
+  moreIconBox: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moreGridLabel: {
+    fontSize: 9,
+    fontWeight: '600',
+    color: COLORS.textLight,
+    textAlign: 'center',
+  },
+  moreGridLabelActive: {
     color: COLORS.primaryLight,
     fontWeight: '700',
   },

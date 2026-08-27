@@ -7,6 +7,7 @@ import {
   Modal,
   ScrollView,
   ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Feather from '@expo/vector-icons/Feather';
@@ -33,6 +34,9 @@ const ALL_ROLES: UserRole[] = [
 ];
 
 export const Header: React.FC<HeaderProps> = ({ onOpenAiConsultant, onOpenNotifications }) => {
+  const { width } = useWindowDimensions();
+  const isSmall = width < 400; // iPhone XS = 375px
+
   const {
     userRole,
     setUserRole,
@@ -59,16 +63,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAiConsultant, onOpenNotifi
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isSmall && styles.containerSmall]}>
       {/* Left: Brand Identity & Current Store */}
       <View style={styles.leftBrand}>
-        <View style={styles.brandIconBox}>
-          <Text style={styles.brandIconText}>KX</Text>
+        <View style={[styles.brandIconBox, isSmall && styles.brandIconBoxSmall]}>
+          <Text style={[styles.brandIconText, isSmall && { fontSize: 11 }]}>KX</Text>
         </View>
 
         <View style={styles.brandTextGroup}>
           <View style={styles.brandTitleRow}>
-            <Text style={styles.brandTitle}>KavangoX</Text>
+            <Text style={[styles.brandTitle, isSmall && { fontSize: 13 }]}>KavangoX</Text>
             <View style={styles.osBadge}>
               <Text style={styles.osBadgeText}>OS</Text>
             </View>
@@ -80,12 +84,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAiConsultant, onOpenNotifi
       </View>
 
       {/* Right: Clean, Uncluttered Action Bar */}
-      <View style={styles.rightActions}>
+      <View style={[styles.rightActions, isSmall && { gap: 4 }]}>
         {/* Network & Sync Status Dot */}
         <TouchableOpacity
           style={[
             styles.networkBadge,
             isOnline ? styles.networkOnline : styles.networkOffline,
+            isSmall && { paddingHorizontal: 5, paddingVertical: 5 },
           ]}
           onPress={() => setIsOnline(!isOnline)}
           activeOpacity={0.7}
@@ -96,20 +101,22 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAiConsultant, onOpenNotifi
               { backgroundColor: isOnline ? COLORS.success : COLORS.danger },
             ]}
           />
-          <Text
-            style={[
-              styles.networkText,
-              { color: isOnline ? COLORS.success : COLORS.danger },
-            ]}
-          >
-            {isOnline ? 'Online' : 'Offline'}
-          </Text>
+          {!isSmall && (
+            <Text
+              style={[
+                styles.networkText,
+                { color: isOnline ? COLORS.success : COLORS.danger },
+              ]}
+            >
+              {isOnline ? 'Online' : 'Offline'}
+            </Text>
+          )}
         </TouchableOpacity>
 
         {/* Sync Indicator (Shows when items pending) */}
         {syncQueue.length > 0 && (
           <TouchableOpacity
-            style={styles.syncButton}
+            style={[styles.syncButton, isSmall && { paddingHorizontal: 4 }]}
             onPress={handleSyncPress}
             disabled={isSyncing}
             activeOpacity={0.7}
@@ -118,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAiConsultant, onOpenNotifi
               <ActivityIndicator size="small" color={COLORS.primaryLight} />
             ) : (
               <>
-                <MaterialCommunityIcons name="cloud-sync" size={14} color={COLORS.blueLight} />
+                <MaterialCommunityIcons name="cloud-sync" size={13} color={COLORS.blueLight} />
                 <Text style={styles.syncBadgeCount}>{syncQueue.length}</Text>
               </>
             )}
@@ -128,22 +135,22 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAiConsultant, onOpenNotifi
         {/* AI Advisor Shortcut */}
         {onOpenAiConsultant && (
           <TouchableOpacity
-            style={styles.actionIconButton}
+            style={[styles.actionIconButton, isSmall && { width: 28, height: 28 }]}
             onPress={onOpenAiConsultant}
             activeOpacity={0.7}
           >
-            <MaterialCommunityIcons name="creation" size={16} color={COLORS.primaryLight} />
+            <MaterialCommunityIcons name="creation" size={15} color={COLORS.primaryLight} />
           </TouchableOpacity>
         )}
 
         {/* Notification Bell */}
         {onOpenNotifications && (
           <TouchableOpacity
-            style={styles.actionIconButton}
+            style={[styles.actionIconButton, isSmall && { width: 28, height: 28 }]}
             onPress={onOpenNotifications}
             activeOpacity={0.7}
           >
-            <Ionicons name="notifications-outline" size={16} color={COLORS.textSub} />
+            <Ionicons name="notifications-outline" size={15} color={COLORS.textSub} />
             {unreadNotifsCount > 0 && (
               <View style={styles.notifCountBadge}>
                 <Text style={styles.notifCountText}>{unreadNotifsCount}</Text>
@@ -154,19 +161,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAiConsultant, onOpenNotifi
 
         {/* Clean Profile & Role Menu Pill */}
         <TouchableOpacity
-          style={styles.profileMenuPill}
+          style={[styles.profileMenuPill, isSmall && { paddingHorizontal: 4, gap: 3, maxWidth: 85 }]}
           onPress={() => setSettingsModalVisible(true)}
           activeOpacity={0.7}
         >
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarInitial}>
+          <View style={[styles.avatarCircle, isSmall && { width: 18, height: 18, borderRadius: 9 }]}>
+            <Text style={[styles.avatarInitial, isSmall && { fontSize: 9 }]}>
               {userRole.split(' ')[0].charAt(0)}
             </Text>
           </View>
-          <Text style={styles.profileRoleText} numberOfLines={1}>
+          <Text style={[styles.profileRoleText, isSmall && { fontSize: 10 }]} numberOfLines={1}>
             {userRole.split(' ')[0]}
           </Text>
-          <Feather name="chevron-down" size={12} color={COLORS.textMuted} />
+          <Feather name="chevron-down" size={10} color={COLORS.textMuted} />
         </TouchableOpacity>
       </View>
 
@@ -334,11 +341,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
   },
+  containerSmall: {
+    paddingHorizontal: 8,
+    height: 48,
+  },
   leftBrand: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexShrink: 0,
-    gap: 8,
+    flexShrink: 1,
+    gap: 6,
   },
   brandIconBox: {
     width: 30,
@@ -347,6 +358,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  brandIconBoxSmall: {
+    width: 26,
+    height: 26,
+    borderRadius: 6,
   },
   brandIconText: {
     color: COLORS.white,

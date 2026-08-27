@@ -378,6 +378,31 @@ export const PosScreen: React.FC = () => {
         </View>
       </View>
 
+      {/* Floating Quick Checkout Bar on Mobile */}
+      {!isDesktop && cart.length > 0 && (
+        <View style={styles.floatingCartBar}>
+          <View style={styles.floatingCartInfo}>
+            <View style={styles.floatingCartBadge}>
+              <Text style={styles.floatingCartBadgeText}>{totalItemsCount}</Text>
+            </View>
+            <View>
+              <Text style={styles.floatingCartTotal}>N${cartTotal.toFixed(2)}</Text>
+              <Text style={styles.floatingCartSub} numberOfLines={1}>
+                {selectedCustomer ? selectedCustomer.name : 'Tap to Charge'}
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.floatingChargeBtn}
+            onPress={handleOpenCheckout}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.floatingChargeText}>Charge</Text>
+            <Feather name="arrow-right" size={14} color={COLORS.white} />
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Barcode Scanner Modal */}
       <BarcodeScannerModal
         visible={scannerVisible}
@@ -1087,6 +1112,67 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   confirmCheckoutText: {
+    color: COLORS.white,
+    fontWeight: '800',
+    fontSize: 12,
+  },
+  floatingCartBar: {
+    position: 'absolute',
+    bottom: 10,
+    left: 12,
+    right: 12,
+    backgroundColor: COLORS.surfaceDark,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: COLORS.primaryLight,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  floatingCartInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  floatingCartBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  floatingCartBadgeText: {
+    color: COLORS.white,
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  floatingCartTotal: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: COLORS.primaryLight,
+  },
+  floatingCartSub: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+  },
+  floatingChargeBtn: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  floatingChargeText: {
     color: COLORS.white,
     fontWeight: '800',
     fontSize: 12,
