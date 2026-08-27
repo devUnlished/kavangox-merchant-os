@@ -44,10 +44,18 @@ export const InventoryScreen: React.FC = () => {
   const [adjustReason, setAdjustReason] = useState('Supplier Delivery Batch');
   const [adjustCost, setAdjustCost] = useState('');
 
-  // Valuation computations
-  const totalCostValuation = products.reduce((sum, p) => sum + p.stockQty * p.costPrice, 0);
-  const totalRetailValuation = products.reduce((sum, p) => sum + p.stockQty * p.sellPrice, 0);
-  const lowStockCount = products.filter((p) => p.stockQty <= p.minStockAlert).length;
+  // Valuation computations memoized
+  const { totalCostValuation, totalRetailValuation, lowStockCount } = useMemo(() => {
+    let cost = 0;
+    let retail = 0;
+    let lowCount = 0;
+    for (const p of products) {
+      cost += p.stockQty * p.costPrice;
+      retail += p.stockQty * p.sellPrice;
+      if (p.stockQty <= p.minStockAlert) lowCount++;
+    }
+    return { totalCostValuation: cost, totalRetailValuation: retail, lowStockCount: lowCount };
+  }, [products]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {

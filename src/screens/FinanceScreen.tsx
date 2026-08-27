@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -35,22 +35,27 @@ export const FinanceScreen: React.FC = () => {
   const [selectedCustomerForRepay, setSelectedCustomerForRepay] = useState<Customer | null>(null);
   const [repayAmount, setRepayAmount] = useState('');
 
-  // Financial aggregates
-  const totalIncome = transactions
-    .filter((t) => t.transactionType === 'INCOME')
-    .reduce((sum, t) => sum + t.amount, 0);
+  // Financial aggregates memoized
+  const { totalIncome, totalExpense, netOperatingProfit, totalOutstandingCustomerDebt } = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    for (const t of transactions) {
+      if (t.transactionType === 'INCOME') income += t.amount;
+      else if (t.transactionType === 'EXPENSE') expense += t.amount;
+    }
+    const debt = customers.reduce((sum, c) => sum + c.outstandingDebt, 0);
+    return {
+      totalIncome: income,
+      totalExpense: expense,
+      netOperatingProfit: income - expense,
+      totalOutstandingCustomerDebt: debt,
+    };
+  }, [transactions, customers]);
 
-  const totalExpense = transactions
-    .filter((t) => t.transactionType === 'EXPENSE')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const netOperatingProfit = totalIncome - totalExpense;
-  const totalOutstandingCustomerDebt = customers.reduce((sum, c) => sum + c.outstandingDebt, 0);
-
-  const filteredTransactions = transactions.filter((t) => {
-    if (selectedCategory === 'All Entries') return true;
-    return t.category === selectedCategory;
-  });
+  const filteredTransactions = useMemo(() => {
+    if (selectedCategory === 'All Entries') return transactions;
+    return transactions.filter((t) => t.category === selectedCategory);
+  }, [transactions, selectedCategory]);
 
   const handleRepayTab = async () => {
     if (!selectedCustomerForRepay) return;

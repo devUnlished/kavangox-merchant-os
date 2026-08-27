@@ -26,31 +26,40 @@ export const enqueueAction = async (type: SyncItem['type'], payload: any) => {
   return item;
 };
 
-export const flushSyncQueue = async () => {
+export const flushSyncQueue = async (batchSize = 5) => {
   const queueData = await AsyncStorage.getItem(SYNC_KEY);
   if (!queueData) return { processed: 0, failed: 0 };
 
   const queue: SyncItem[] = JSON.parse(queueData);
+  if (queue.length === 0) return { processed: 0, failed: 0 };
+
   const remaining: SyncItem[] = [];
   let processed = 0;
 
-  for (const item of queue) {
-    try {
-      if (item.type === 'POS_SALE') {
-        await apiClient.post('/orders', item.payload);
-      } else if (item.type === 'PROCUREMENT_RFQ') {
-        await apiClient.post('/sync/rfq', {
-          data: item.payload,
-          correlation_id: item.payload.local_uuid,
-        });
-      }
-      processed++;
-    } catch (err: any) {
-      // Retain in queue if network offline or 5xx server error
-      if (!err.response || err.response.status >= 500) {
-        remaining.push(item);
-      }
-    }
+  // Process in concurrent chunks of batchSize to avoid sequential HTTP waterfall
+  for (let i = 0; i < queue.length; i += batchSize) {
+    const chunk = queue.slice(i, i + batchSize);
+    
+    await Promise.all(
+      chunk.map(async (item) => {
+        try {
+          if (item.type === 'POS_SALE') {
+            await apiClient.post('/orders', item.payload);
+          } else if (item.type === 'PROCUREMENT_RFQ') {
+            await apiClient.post('/sync/rfq', {
+              data: item.payload,
+              correlation_id: item.payload.local_uuid,
+            });
+          }
+          processed++;
+        } catch (err: any) {
+          // Retain in queue if network offline or 5xx server error
+          if (!err.response || err.response.status >= 500) {
+            remaining.push(item);
+          }
+        }
+      })
+    );
   }
 
   await AsyncStorage.setItem(SYNC_KEY, JSON.stringify(remaining));

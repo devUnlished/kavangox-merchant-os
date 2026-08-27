@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -36,22 +36,26 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onOpenAiConsul
     branch,
   } = useApp();
 
-  // Metrics computation
-  const totalRevenue = transactions
-    .filter((t) => t.transactionType === 'INCOME')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalExpense = transactions
-    .filter((t) => t.transactionType === 'EXPENSE')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const netProfit = totalRevenue - totalExpense;
-  const lowStockItems = products.filter((p) => p.stockQty <= p.minStockAlert);
-  const activeConsignments = consignments.filter((c) => c.status !== 'DELIVERED');
-  const totalCustomerDebt = customers.reduce((sum, c) => sum + c.outstandingDebt, 0);
+  // Metrics computation memoized
+  const { totalRevenue, totalExpense, netProfit, lowStockItems, activeConsignments, totalCustomerDebt } = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    for (const t of transactions) {
+      if (t.transactionType === 'INCOME') income += t.amount;
+      else if (t.transactionType === 'EXPENSE') expense += t.amount;
+    }
+    return {
+      totalRevenue: income,
+      totalExpense: expense,
+      netProfit: income - expense,
+      lowStockItems: products.filter((p) => p.stockQty <= p.minStockAlert),
+      activeConsignments: consignments.filter((c) => c.status !== 'DELIVERED'),
+      totalCustomerDebt: customers.reduce((sum, c) => sum + c.outstandingDebt, 0),
+    };
+  }, [transactions, products, consignments, customers]);
 
   // 7-day revenue aggregation
-  const chartData = [
+  const chartData = useMemo(() => [
     { label: 'Wed', amount: 1420 },
     { label: 'Thu', amount: 2150 },
     { label: 'Fri', amount: 3200 },
@@ -59,7 +63,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onOpenAiConsul
     { label: 'Sun', amount: 3100 },
     { label: 'Mon', amount: 2450 },
     { label: 'Today', amount: totalRevenue > 0 ? totalRevenue : 3980 },
-  ];
+  ], [totalRevenue]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
